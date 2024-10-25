@@ -8,10 +8,11 @@ from tqdm import tqdm
 import torch
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
+import torchvsion.transforms as T
 
 from sklearn.metrics import f1_score, classification_report, confusion_matrix, accuracy_score, auc, roc_auc_score
 
-from utils.dataset import cus_Dataset, valid_transform
+from utils.dataset import cus_Dataset
 from utils.options import Tee
 from utils.model import ConvNext
 
@@ -89,6 +90,12 @@ def main(CFG):
     model.load_state_dict(torch.load(f"./model/{CFG['Weight']}"), map_location=CFG['Device'])
     model.to(CFG['Device'])
 
+    valid_transform = T.Compose([
+        T.Resize((CFG['Img_Size'], CFG['Img_Size'])),
+        T.ToTensor(),
+        T.Normalize(mean=[0.485], std=[0.229])
+    ])
+
     test_csv_path = f"./csv_files/{CFG['Target_Nums']}classes_{CFG['Model_Name']}_Test.csv"
     test_dataset = cus_Dataset(csv_path=test_csv_path, transform=valid_transform)
     test_dataloader = DataLoader(test_dataset, batch_size=CFG['Batch_Size'], shuffle=False, num_workers=CFG['Num_Workers'])
@@ -105,7 +112,8 @@ if __name__ == '__main__':
     CFG = {
         'Device' : torch.device('cuda' if torch.cuda.is_available() else 'cpu'),
         'Weight' : '4classes_ConvNext.pth',
-
+        
+        'Img_Size' : 384,
         'Batch_Size' : 32,
         'Num_Workers' : 4,
 
