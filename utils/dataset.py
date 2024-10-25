@@ -6,29 +6,7 @@ import pandas as pd
 import numpy as np
 
 import torch
-import torchvision.transforms as T
 from torch.utils.data import Dataset
-
-####################################################################################################################################################################################
-
-train_transform = T.Compose([
-    T.Resize((256, 256)),
-    T.RandomVerticalFlip(p=0.5),
-    T.RandomHorizontalFlip(p=0.5),
-    T.RandomRotation(degrees=10),
-    T.RandomAffine(degrees=0, translate=(0.05, 0.05)),
-    T.RandomAdjustSharpness(sharpness_factor=2, p=0.3),
-    T.ColorJitter(brightness=0.1, contrast=0.1, saturation=0.1),
-    T.toTensor(),
-    T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-])
-
-
-valid_transform = T.Compose([
-    T.Resize((256, 256)),
-    T.toTensor(),
-    T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-])
 
 ####################################################################################################################################################################################
 

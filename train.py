@@ -13,11 +13,12 @@ import torch.nn.functional as F
 from torch.utils.data import DataLoader
 import torch.optim as optim
 from torch.optim import lr_scheduler
+import torchvision.transforms as T
 
 from sklearn.metrics import f1_score, classification_report, confusion_matrix, accuracy_score, auc, roc_auc_score
 import matplotlib.pyplot as plt
 
-from utils.dataset import cus_Dataset, train_transform, valid_transform
+from utils.dataset import cus_Dataset
 from utils.options import Tee
 from utils.model import ConvNext
 
@@ -72,7 +73,7 @@ def validation(CFG, model, criterion, val_loader):
 
     model.eval()
     val_loss = []
-    preds, probs, labels = np.array([]), np.array([]), np.array([])
+    preds, probs, labels = [], [], []
 
     with torch.no_grad():
         for input, label in tqdm(val_loader):
@@ -89,7 +90,7 @@ def validation(CFG, model, criterion, val_loader):
 
             val_loss.append(loss.item())
 
-        _val_f1_score = validation_result(preds, labels, probs)
+        _val_f1_score = validation_result(np.array(preds), np.array(labels), np.array(probs))
         _val_loss = np.mean(val_loss)
         
     return _val_loss, _val_f1_score
@@ -189,14 +190,27 @@ def main(CFG):
     sys.stdout = Tee(original_stdout, logfile)
 
     print('Log 기록을 위한 Memo')
-
     print(CFG)
     set_seed(CFG)
+    
+    train_transform = T.Compose([
+        T.Resize((CFG['Img_Size'], CFG['Img_Size'])),
+        T.RandomVerticalFlip(p=0.5),
+        T.RandomHorizontalFlip(p=0.5),
+        T.ToTensor(),
+        T.Normalize(mean=[0.485], std=[0.229])
+    ])
+
+    valid_transform = T.Compose([
+        T.Resize((CFG['Img_Size'], CFG['Img_Size'])),
+        T.ToTensor(),
+        T.Normalize(mean=[0.485], std=[0.229])
+    ])
 
     train_csv_path = f"./csv_files/{CFG['Target_Nums']}classes_{CFG['Target_Label']}_Training_Single.csv"
     valid_csv_path = f"./csv_files/{CFG['Target_Nums']}classes_{CFG['Target_Label']}_Training_Single.csv"
-    train_datasets = cus_Dataset(train_csv_path=train_csv_path, transform=train_transform)
-    valid_datasets = cus_Dataset(valid_csv_path=valid_csv_path, transform=valid_transform)
+    train_datasets = cus_Dataset(csv_path=train_csv_path, transform=train_transform)
+    valid_datasets = cus_Dataset(csv_path=valid_csv_path, transform=valid_transform)
     train_dataloader = DataLoader(train_datasets, batch_size=CFG['Batch_Size'], shuffle=True, num_workers=CFG['Num_Workers'])
     valid_dataloader = DataLoader(valid_datasets, batch_size=CFG['Batch_Size'], shuffle=False, num_workers=CFG['Num_Workers'])
 
@@ -221,6 +235,7 @@ if __name__ == "__main__":
         'Today_Date' : datetime.date.today(),
         'Current_Time' : datetime.datetime.now().strftime('%H%M'),
 
+        'Img_Size' : 384,
         'Epochs' : 50,
         'Radnom_Seed' : 42,
         'Learning_Rate' : 1e-5,
