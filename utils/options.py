@@ -1,8 +1,3 @@
-import datetime
-import sys
-import os
-
-
 class Tee(object):
     def __init__(self, *files):
         self.files = files
