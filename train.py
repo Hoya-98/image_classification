@@ -77,8 +77,8 @@ def validation(CFG, model, criterion, val_loader):
             pred = model(input)
             loss = criterion(pred, label)
 
-            preds += pred.argmax(1).detach().tolist()
-            labels += label.detach().tolist()
+            preds += pred.argmax(1).tolist()
+            labels += label.tolist()
             probs += F.softmax(pred, dim=1).tolist()
 
             val_loss.append(loss.item())
@@ -89,16 +89,16 @@ def validation(CFG, model, criterion, val_loader):
     return _val_loss, _val_f1_score
 
 
-def train(CFG, model, optimizer, train_loader, val_loader, scheduler):
+def train(CFG, model, optimizer, scheduler, train_loader, val_loader):
     
     criterion = nn.CrossEntropyLoss(label_smoothing=0.1).to(CFG['Device'])
     early_stop_counter = 0
     best_score = 0
     best_model = None
 
-    train_losses = []
-    val_losses = []
-    val_f1_scores = []
+    train_loss_list = []
+    val_loss_list = []
+    val_f1_score_list = []
 
     try:
         for epoch in range(CFG['Epochs']):
@@ -128,9 +128,9 @@ def train(CFG, model, optimizer, train_loader, val_loader, scheduler):
             print(f"Val_Loss: [{_val_loss:.4f}]")
             print('#' * 200)
 
-            train_losses.append(_train_loss)
-            val_losses.append(_val_loss)
-            val_f1_scores.append(_val_f1_score)
+            train_loss_list.append(_train_loss)
+            val_loss_list.append(_val_loss)
+            val_f1_score_list.append(_val_f1_score)
 
             if scheduler is not None:
                 scheduler.step(_val_loss)
@@ -139,7 +139,7 @@ def train(CFG, model, optimizer, train_loader, val_loader, scheduler):
                 early_stop_counter = 0
                 best_score = _val_f1_score
                 best_model = model
-                model_save_path = f"./model/{CFG['Target_Nums']}classes_{CFG['Model_Name']}_{CFG['Today_Date']}.pth"
+                model_save_path = f"./model/{CFG['Today_Date']}_{CFG['Current_Time']}.pth"
                 torch.save(best_model.to('cpu').state_dict(), model_save_path)
                 best_model.to(CFG['Device'])
 
@@ -157,20 +157,18 @@ def train(CFG, model, optimizer, train_loader, val_loader, scheduler):
         print(f"{e} 그래프를 그립니다")
 
     plt.figure(figsize=(12, 6))
-    plt.plot(train_losses, label='Train Loss')
-    plt.plot(val_losses, label='Validation Loss')
+    plt.plot(train_loss_list, label='Train Loss')
+    plt.plot(val_loss_list, label='Validation Loss')
     plt.title('Loss History')
     plt.xlabel('Epochs')
     plt.ylabel('Loss')
     plt.legend()
-    plt.savefig(f"./history/{CFG['Target_Nums']}classes_{CFG['Model_Name']}_{CFG['Today_Date']}_train_loss.png")
+    plt.savefig(f"./history/{CFG['Today_Date']}_{CFG['Current_Time']}_Loss.png")
 
     plt.figure(figsize=(12, 6))
-    plt.plot(val_f1_scores, label='Validation F1 Score')
+    plt.plot(val_f1_score_list, label='Validation F1 Score')
     plt.title("F1 Score History")
     plt.xlabel('Epochs')
     plt.ylabel('F1 score')
     plt.legend()
-    plt.savefig(f"./history/{CFG['Target_Nums']}classes_{CFG['Model_Name']}_{CFG['Today_Date']}_train_score.png")
-
-    return best_model
+    plt.savefig(f"./history/{CFG['Today_Date']}_{CFG['Current_Time']}_F1_Score.png")

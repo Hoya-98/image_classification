@@ -59,8 +59,8 @@ def test(CFG, model, test_loader):
                 
             output = model(input)
 
-            preds += output.argmax(1).detach().tolist()
-            labels += label.detach().tolist()
+            preds += output.argmax(1).tolist()
+            labels += label.tolist()
             probs += F.softmax(output, dim=1).tolist()
 
         test_result(CFG, np.array(preds), np.array(labels), np.array(probs))
