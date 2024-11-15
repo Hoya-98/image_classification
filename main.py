@@ -77,24 +77,26 @@ def main(CFG):
 if __name__ == "__main__":
     
     CFG = {
-    'Device' : torch.device('cuda' if torch.cuda.is_available() else 'cpu'),
-    'Today_Date' : datetime.date.today(),
-    'Current_Time': datetime.datetime.now().strftime("%H%M"),
-    'Meta_Path' : '',
-    'Image_Dir' : '',
+        'Model_Name' : 'ConvNeXt',
+        'Model_Size' : 'Large',
+        'Target_Nums': 4,
+        'Target_Names' : ['Class0', 'Class1', 'Class2', 'Class3'],
 
-    'Epochs': 50,
-    'Random_Seed' : 42,
-    'Learning_Rate' : 1e-5,
-    'Resize' : 512,
-    'Batch_Size' : 32,
-    'Early_Stop' : 30,
-    'Num_Workers' : 8,
+        'Device' : torch.device('cuda' if torch.cuda.is_available() else 'cpu'),
+        'Today_Date' : datetime.date.today(),
+        'Current_Time': datetime.datetime.now().strftime("%H%M"),
 
-    'Model_Name' : 'ConvNeXt',
-    'Model_Size' : 'Large',
-    'Target_Nums': 4,
-    'Target_Names' : ['Class0', 'Class1', 'Class2', 'Class3'],
+        'Meta_Path' : '../skinex_burn/data/ab/meta.csv',
+        'Image_Dir' : '../skinex_burn/data/ab/image',
+
+        'Random_Seed' : 42,
+        'Epochs': 50,
+        'Batch_Size' : 32,
+        'Learning_Rate' : 1e-5,
+        'Num_Workers' : 8,
+        'Early_Stop' : 30,
+
+        'Resize' : 512
     }
 
     main(CFG)

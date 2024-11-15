@@ -65,6 +65,7 @@ def validation_result(CFG, preds, labels, probs):
 def validation(CFG, model, criterion, val_loader):
 
     model.eval()
+    
     val_loss = []
     preds = []
     probs = []
