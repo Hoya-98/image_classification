@@ -32,7 +32,6 @@ def main(CFG):
     sys.stdout = Tee(original_stdout, logfile)
     print('Log 기록을 위한 Memo')
     print(CFG)
-    
     set_seed(CFG)
     
     train_transform = T.Compose([
@@ -81,8 +80,8 @@ if __name__ == "__main__":
     'Device' : torch.device('cuda' if torch.cuda.is_available() else 'cpu'),
     'Today_Date' : datetime.date.today(),
     'Current_Time': datetime.datetime.now().strftime("%H%M"),
-    'Image_Dir' :  '',
     'Meta_Path' : '',
+    'Image_Dir' : '',
 
     'Epochs': 50,
     'Random_Seed' : 42,

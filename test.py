@@ -49,7 +49,10 @@ def test_result(CFG, preds, labels, probs):
 def test(CFG, model, test_loader):
 
     model.eval()
-    preds, probs, labels = [], [], []
+    
+    preds = []
+    probs = [] 
+    labels = []
     
     with torch.no_grad():
         for input, label in tqdm(test_loader):

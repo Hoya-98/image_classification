@@ -66,7 +66,9 @@ def validation(CFG, model, criterion, val_loader):
 
     model.eval()
     val_loss = []
-    preds, probs, labels = [], [], []
+    preds = []
+    probs = []
+    labels = []
 
     with torch.no_grad():
         for input, label in tqdm(val_loader):

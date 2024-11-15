@@ -1,5 +1,4 @@
 from torch.utils.data import Dataset
-import pandas as pd
 from PIL import Image, ImageOps
 
 class cus_Dataset(Dataset):
