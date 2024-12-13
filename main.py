@@ -48,22 +48,26 @@ def main(CFG):
     ])
 
     data = pd.read_csv(CFG['Meta_Path'])
-    train_data, tmp_data = train_test_split(data, test_size=0.2, random_state=CFG['Random_Seed'])
-    valid_data, test_data = train_test_split(tmp_data, test_size=0.5, random_state=CFG['Random_Seed'])
-    train_dataset = cus_Dataset(CFG, train_data, train_transform)
-    valid_dataset = cus_Dataset(CFG, valid_data, valid_transform)
-    test_dataset = cus_Dataset(CFG, test_data, valid_transform)
-    train_dataloader = DataLoader(train_dataset, batch_size=CFG['Batch_Size'], shuffle=True, num_workers=CFG['Num_Workers'])
-    valid_dataloader = DataLoader(valid_dataset, batch_size=CFG['Batch_Size'], shuffle=False, num_workers=CFG['Num_Workers'])
+    # train_data, tmp_data = train_test_split(data, test_size=0.2, random_state=CFG['Random_Seed'])
+    # valid_data, test_data = train_test_split(tmp_data, test_size=0.5, random_state=CFG['Random_Seed'])
+    # train_dataset = cus_Dataset(CFG, train_data, train_transform)
+    # valid_dataset = cus_Dataset(CFG, valid_data, valid_transform)
+    # test_dataset = cus_Dataset(CFG, test_data, valid_transform)
+    # train_dataloader = DataLoader(train_dataset, batch_size=CFG['Batch_Size'], shuffle=True, num_workers=CFG['Num_Workers'])
+    # valid_dataloader = DataLoader(valid_dataset, batch_size=CFG['Batch_Size'], shuffle=False, num_workers=CFG['Num_Workers'])
+    # test_dataloader = DataLoader(test_dataset, batch_size=CFG['Batch_Size'], shuffle=False, num_workers=CFG['Num_Workers'])
+    test_dataset = cus_Dataset(CFG, data, valid_transform)
     test_dataloader = DataLoader(test_dataset, batch_size=CFG['Batch_Size'], shuffle=False, num_workers=CFG['Num_Workers'])
-        
-    model = ConvNeXt(n_classes=CFG['Target_Nums'], img_size=CFG['Resize'], size=CFG['Model_Size'])
-    optimizer = optim.AdamW(params=model.parameters(), lr=CFG['Learning_Rate'], weight_decay=0.001)
-    scheduler = None
-    model.to(CFG['Device'])
-    train(CFG, model, optimizer, scheduler, train_dataloader, valid_dataloader)
+
+    # model = ConvNeXt(n_classes=CFG['Target_Nums'], img_size=CFG['Resize'], size=CFG['Model_Size'])
+    model = VanillaSwinV2(n_classes=CFG['Target_Nums'], img_size=CFG['Resize'], size=CFG['Model_Size'])
+    # optimizer = optim.AdamW(params=model.parameters(), lr=CFG['Learning_Rate'], weight_decay=0.001)
+    # scheduler = None
+    # model.to(CFG['Device'])
+    # train(CFG, model, optimizer, scheduler, train_dataloader, valid_dataloader)
     
-    weight = f"./model/{CFG['Today_Date']}_{CFG['Current_Time']}.pth"
+    # weight = f"./model/{CFG['Today_Date']}_{CFG['Current_Time']}.pth"
+    weight = CFG['Weight']
     model.load_state_dict(torch.load(weight, weights_only=True))
     model.to(CFG['Device'])
     test(CFG, model, test_dataloader)
@@ -77,8 +81,8 @@ def main(CFG):
 if __name__ == "__main__":
     
     CFG = {
-        'Model_Name' : 'ConvNeXt',
-        'Model_Size' : 'Large',
+        'Model_Name' : 'SwinV2',
+        'Model_Size' : 'Base',
         'Target_Nums': 4,
         'Target_Names' : ['Class0', 'Class1', 'Class2', 'Class3'],
 
@@ -96,7 +100,9 @@ if __name__ == "__main__":
         'Num_Workers' : 8,
         'Early_Stop' : 30,
 
-        'Resize' : 512
+        'Resize' : 512,
+
+        'Weight' : '../skinex_burn/aihub/model/4classes_SwinV2_512.pth'
     }
 
     main(CFG)

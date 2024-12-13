@@ -1,6 +1,6 @@
 import torch.nn as nn
 import torchvision.models as models
-from STN import STN 
+from .STN import STN 
 
 class ConvNeXt(nn.Module):
 
